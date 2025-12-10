@@ -108,13 +108,7 @@ public class MultiplayerHostSession : IGameSession
     private void OnClientDisconnected(ClientConnection connection)
     {
         Console.WriteLine("Client Disconnected");
-        GameObject? pawn = gs.GetPawn(connection.ClientId);
-        if (pawn == null)
-            return;
-
-        gs.RemoveWorldObject(
-            pawn.NetworkId
-        );
+        gs.RemoveClientWorldObjects(connection.ClientId);
     }
     
     private void OnActionPacketReceived(Udp_ActionPacket packet)

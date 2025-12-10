@@ -1,3 +1,4 @@
+using System.Xml;
 using Engine.Scene;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -91,6 +92,15 @@ public sealed class GameState
         obj?.RemoveFromParent();
     }
 
+    public void RemoveClientWorldObjects(int owningClientId)
+    {
+        List<GameObject> list = GetClientWorldObjectsRecursive(CurrentScene.WorldRoot, owningClientId);
+        for (int i = list.Count - 1; i >= 0; --i)
+        {
+            list[i].RemoveFromParent();
+        }
+    }
+
     private void RegisterWorldObject(GameObject obj, int owningClientId = -1)
     {
         if (obj.NetworkId == -1)
@@ -142,6 +152,22 @@ public sealed class GameState
         }
 
         return null;
+    }
+
+    private List<GameObject> GetClientWorldObjectsRecursive(GameObject root, int owningClientId)
+    {
+        List<GameObject> list = new();
+
+        if (root.OwningClientId == owningClientId || root.OwningClientId == 0)
+            list.Add(root);
+
+        foreach (GameObject child in root.Children)
+        {
+            List<GameObject> found = GetClientWorldObjectsRecursive(child, owningClientId);
+            list.AddRange(found);
+        }
+
+        return list;
     }
 
     private GameObject? GetPawnRecursive(GameObject node, int owningClientId)
