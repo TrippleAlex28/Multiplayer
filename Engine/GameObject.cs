@@ -15,11 +15,6 @@ public class GameObject : NetObject
 {
     public override NetObjectTypeIds TypeId => NetObjectTypeIds.GameObject;
     
-    static GameObject()
-    {
-        NetObjectFactory.Register<GameObject>(NetObjectTypeIds.GameObject);
-    }
-    
     public GameObject() : base()
     {
         RegisterProperty(

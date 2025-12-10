@@ -10,11 +10,6 @@ public class Player : GameObject
 {
     public override NetObjectTypeIds TypeId => NetObjectTypeIds.Player;
 
-    static Player()
-    {
-        NetObjectFactory.Register<Player>(NetObjectTypeIds.Player);
-    }
-
     public Player()
     {
         this.Replicate = true;

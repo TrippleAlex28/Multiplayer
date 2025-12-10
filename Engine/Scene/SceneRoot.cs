@@ -8,11 +8,6 @@ public class SceneRoot : GameObject
 {
     public override NetObjectTypeIds TypeId => NetObjectTypeIds.SceneRoot;
     
-    static SceneRoot()
-    {
-        NetObjectFactory.Register<SceneRoot>(NetObjectTypeIds.SceneRoot);
-    }
-    
     public SceneRoot()
     {
         this.Replicate = true;

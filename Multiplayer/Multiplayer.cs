@@ -1,4 +1,6 @@
-﻿using Engine.Network.Shared.Action;
+﻿using Engine;
+using Engine.Network.Shared.Action;
+using Engine.Network.Shared.Object;
 using Engine.Network.Shared.Session;
 using Engine.Scene;
 using Microsoft.Xna.Framework;
@@ -21,10 +23,13 @@ public class Multiplayer : Game
     {
         #region Scenes
         SceneRegistry.Register("TestScene", () => new TestScene());
+        SceneRegistry.Register("TestScene2", () => new TestScene2());
         #endregion
 
         #region Objects
-
+        NetObjectFactory.Register<GameObject>(NetObjectTypeIds.GameObject);
+        NetObjectFactory.Register<SceneRoot>(NetObjectTypeIds.SceneRoot);
+        NetObjectFactory.Register<Player>(NetObjectTypeIds.Player);
         #endregion
         
         _graphics = new GraphicsDeviceManager(this);
@@ -59,6 +64,11 @@ public class Multiplayer : Game
         prevKb = currKb;
         currKb = Keyboard.GetState();
 
+        if (currKb.IsKeyDown(Keys.Enter) && prevKb.IsKeyUp(Keys.Enter))
+        {
+            CurrentSession.SwitchScene("TestScene2");
+        }
+        
         InputSnapshot = new();
         if (currKb.IsKeyDown(Keys.A))
             InputSnapshot.DesiredMovementDirection.X -= 1;
