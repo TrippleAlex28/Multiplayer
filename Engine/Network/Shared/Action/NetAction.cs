@@ -59,7 +59,7 @@ public static class NetActionFactory
 {
     private readonly static Dictionary<NetActionType, Func<InputSnapshot, NetAction>> _constructors = new()
     {
-        { NetActionType.Move, (InputSnapshot inputSnapshot) => new MoveAction(inputSnapshot.DesiredMovementDirection) }
+        { NetActionType.Move, (InputSnapshot inputSnapshot) => new MoveAction(inputSnapshot) }
     };
 
     public static void Register(NetActionType type, Func<InputSnapshot, NetAction> constructor)

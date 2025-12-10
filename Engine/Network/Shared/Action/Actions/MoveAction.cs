@@ -1,4 +1,3 @@
-using Engine.Network.Shared.Object;
 using Engine.Network.Shared.State;
 using Microsoft.Xna.Framework;
 
@@ -15,9 +14,9 @@ public class MoveAction : NetAction
         
     }
     
-    public MoveAction(Vector2 desiredDirection)
+    public MoveAction(InputSnapshot inputSnapshot)
     {
-        DesiredDirection = desiredDirection;
+        DesiredDirection = inputSnapshot.DesiredMovementDirection;
     }
 
     public override void Apply(GameState gs, int clientId)
