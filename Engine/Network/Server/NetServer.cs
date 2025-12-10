@@ -29,6 +29,7 @@ public sealed class NetServer : IDisposable
 
     private readonly Dictionary<int, ClientConnection> _clients = new();
     private int _nextClientId = 1;
+    public IEnumerable<KeyValuePair<int, ClientConnection>> Clients => _clients;
 
     private CancellationTokenSource? _cts;
     

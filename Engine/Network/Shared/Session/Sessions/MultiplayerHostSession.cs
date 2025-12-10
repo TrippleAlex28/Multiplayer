@@ -93,6 +93,14 @@ public class MultiplayerHostSession : IGameSession
         
         gs.SwitchScene(sceneKey);
         gs.RegisterExistingWorldObjects();
+
+        foreach (var kvp in _netServer.Clients)
+        {
+            gs.AddWorldObject(
+                _playerConstructor(),
+                owningClientId: kvp.Key
+            );
+        }
     }
 
     #region Event Handlers

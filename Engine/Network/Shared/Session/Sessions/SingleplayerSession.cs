@@ -70,6 +70,11 @@ public class SingleplayerSession : IGameSession
         if (!_initialized) return;
         
         gs.SwitchScene(sceneKey);
+
+        gs.AddWorldObject(
+            _playerConstructor(),
+            owningClientId: 0
+        );
     }
     
     public void Dispose()
