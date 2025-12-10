@@ -49,9 +49,19 @@ public class FramedTcp : IDisposable
         int offset = 0;
         while (offset < count)
         {
-            int read = await _stream.ReadAsync(buffer, offset, count - offset, ct);
+            int read;
+            try
+            {
+                read = await _stream.ReadAsync(buffer, offset, count - offset, ct);
+            }
+            catch
+            {
+                return false;
+            }
+
             if (read <= 0) 
                 return false;
+                
             offset += read;
         }
 
