@@ -32,40 +32,48 @@ public sealed class NetClient : IDisposable
     #region Connection
     public async Task<bool> ConnectAsync(string host, int hostTcpPort = 7777, int localUdpPort = 0)
     {
-        // Setup Tcp
-        _tcp = new();
-        await _tcp.ConnectAsync(host, hostTcpPort);
-        _framed = new(_tcp);
-
-        // Setup Udp
-        _udp = new(localUdpPort);
-        localUdpPort = ((IPEndPoint)_udp.Client.LocalEndPoint!).Port;
-
-        // Send Tcp_ConnectionRequest
-        Tcp_ConnectionRequestPacket crPacket = new(ClientManager.Instance.Name, localUdpPort);
-        await _framed.SendAsync(crPacket.CreatePayload());
-
-        // Read Respone for either Tcp_ConnectionAccept or TCP_Disconnect
-        byte[]? data = await _framed.ReceiveAsync(CancellationToken.None);
-        if (data == null)
-            return false;
-        
-        Packet p;
-        using (MemoryStream ms = new(data))
-        using (BinaryReader r = new(ms))
+        try
         {
-            p = Packet.Deserialize(r);
+            // Setup Tcp
+            _tcp = new();
+            await _tcp.ConnectAsync(host, hostTcpPort);
+            _framed = new(_tcp);
+
+            // Setup Udp
+            _udp = new(localUdpPort);
+            localUdpPort = ((IPEndPoint)_udp.Client.LocalEndPoint!).Port;
+
+            // Send Tcp_ConnectionRequest
+            Tcp_ConnectionRequestPacket crPacket = new(ClientManager.Instance.Name, localUdpPort);
+            await _framed.SendAsync(crPacket.CreatePayload());
+
+            // Read Respone for either Tcp_ConnectionAccept or TCP_Disconnect
+            byte[]? data = await _framed.ReceiveAsync(CancellationToken.None);
+            if (data == null)
+                return false;
+            
+            Packet p;
+            using (MemoryStream ms = new(data))
+            using (BinaryReader r = new(ms))
+            {
+                p = Packet.Deserialize(r);
+            }
+
+            switch (p.Type)
+            {
+                case PacketType.Tcp_ConnectionAccept:
+                    StartRunning((Tcp_ConnectionAcceptPacket)p, host);
+                    return true;
+                case PacketType.Tcp_Disconnect:
+                    return false;
+                default:
+                    return false;
+            }
         }
-
-        switch (p.Type)
+        catch
         {
-            case PacketType.Tcp_ConnectionAccept:
-                StartRunning((Tcp_ConnectionAcceptPacket)p, host);
-                return true;
-            case PacketType.Tcp_Disconnect:
-                return false;
-            default:
-                return false;
+            CleanupFailedConnect();
+            return false;
         }
     }
 
@@ -222,13 +230,25 @@ public sealed class NetClient : IDisposable
         _framed?.Dispose();
         _udp?.Close();
 
+        _framed = null;
         _tcp = null;
+        _udp = null;
+    }
+
+    private void CleanupFailedConnect()
+    {
+        _framed?.Dispose();
+        _udp?.Dispose();
+
+        _framed =  null;
+        _tcp = null;
+        _udp = null;
     }
     #endregion
 
     public void Dispose()
     {
-        _udp?.Dispose();
         _framed?.Dispose();
+        _udp?.Dispose();
     }
 }
