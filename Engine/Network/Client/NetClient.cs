@@ -228,7 +228,7 @@ public sealed class NetClient : IDisposable
         
         _cts?.Cancel();
         _framed?.Dispose();
-        _udp?.Close();
+        try { _udp?.Close(); } catch {}
 
         _framed = null;
         _tcp = null;
@@ -237,7 +237,7 @@ public sealed class NetClient : IDisposable
 
     private void CleanupFailedConnect()
     {
-        try { _framed?.Dispose(); } catch {}
+        _framed?.Dispose();
         try { _udp?.Dispose(); } catch {}
 
         _framed =  null;
@@ -249,6 +249,6 @@ public sealed class NetClient : IDisposable
     public void Dispose()
     {
         _framed?.Dispose();
-        _udp?.Dispose();
+        try { _udp?.Dispose(); } catch {}
     }
 }
