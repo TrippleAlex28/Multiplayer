@@ -21,6 +21,7 @@ public sealed class NetClient : IDisposable
     #region Events
     public event Action<string, string>? ChatMessageReceived;
     public event Action<Udp_SnapshotPacket>? SnapshotPacketReceived;
+    public event Action<string>? Disconnected;
     #endregion
     
     public NetClient()
@@ -84,6 +85,7 @@ public sealed class NetClient : IDisposable
         catch {}
         finally
         {
+            Disconnected?.Invoke(reason);
             StopRunning();
         }
     }
@@ -103,7 +105,10 @@ public sealed class NetClient : IDisposable
                 HandleTcpPacket(data);
             }
         }
-        catch {}
+        catch
+        {
+            await DisconnectAsync("TCP Receive network error");
+        }
     }
 
     private async Task UdpReceiveLoopAsync(CancellationToken ct)
@@ -118,7 +123,10 @@ public sealed class NetClient : IDisposable
                 HandleUdpPacket(data);
             }
         }
-        catch {}
+        catch
+        {
+            await DisconnectAsync("Lost UDP connection to server");
+        }
     }
     #endregion
 

@@ -39,6 +39,7 @@ public class MultiplayerClientSession : IGameSession
     {
         _netClient.ChatMessageReceived += OnChatMessageReceived;
         _netClient.SnapshotPacketReceived += OnSnapshotPacketReceived;
+        _netClient.Disconnected += OnDisconnected;
             
         _initialized = true;
     }
@@ -133,6 +134,11 @@ public class MultiplayerClientSession : IGameSession
         // Reapply remaining pending actions (client-side prediction reconciliation)
         foreach (NetAction action in _pendingActions)
             action.Apply(gs, _netClient.ClientId);
+    }
+
+    private void OnDisconnected(string reason)
+    {
+        Console.WriteLine($"Disconnected: {reason}");
     }
     #endregion
     
@@ -280,6 +286,7 @@ public class MultiplayerClientSession : IGameSession
     {
         _netClient.ChatMessageReceived -= OnChatMessageReceived;
         _netClient.SnapshotPacketReceived -= OnSnapshotPacketReceived;
+        _netClient.Disconnected -= OnDisconnected;
 
         _netClient.Dispose();
     }
