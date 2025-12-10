@@ -73,10 +73,19 @@ public sealed class NetClient : IDisposable
         if (_framed == null)
             return;
 
-        Tcp_DisconnectPacket packet = new(reason);
-        await _framed.SendAsync(packet.CreatePayload());
-
-        StopRunning();
+        try
+        {
+            if (_framed.Connected)
+            {
+                Tcp_DisconnectPacket packet = new(reason);
+                await _framed.SendAsync(packet.CreatePayload());
+            }
+        }
+        catch {}
+        finally
+        {
+            StopRunning();
+        }
     }
     #endregion
 

@@ -1,3 +1,4 @@
+using System.Data;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -152,7 +153,21 @@ public sealed class NetServer : IDisposable
         {
             while (!ct.IsCancellationRequested && framed.Connected)
             {
-                byte[]? receivedData = await framed.ReceiveAsync(ct);
+                byte[]? receivedData;
+                
+                try
+                {
+                    receivedData = await framed.ReceiveAsync(ct);
+                }
+                catch (IOException)
+                {
+                    break;
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
+                
                 if (receivedData == null)
                     break;
 
@@ -257,7 +272,21 @@ public sealed class NetServer : IDisposable
             if (exceptClientId.HasValue && kvp.Key == exceptClientId.Value)
                 continue;
 
-            _ = kvp.Value.Framed.SendAsync(payload);
+            try
+            {
+                if (kvp.Value.Framed.Connected)
+                {
+                    _ = kvp.Value.Framed.SendAsync(payload);
+                }
+            }
+            catch (IOException)
+            {
+                DisconnectClient(kvp.Value);
+            }
+            catch (ObjectDisposedException)
+            {
+                DisconnectClient(kvp.Value);
+            }
         }
     }
 
