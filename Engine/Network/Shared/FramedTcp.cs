@@ -21,12 +21,16 @@ public class FramedTcp : IDisposable
         if (!Connected)
             return;
 
-        int length = payload.Length;
-        byte[] buffer = new byte[4 + length];
-        BitConverter.GetBytes(length).CopyTo(buffer, 0);
-        payload.CopyTo(buffer, 4);
+        try
+        {
+            int length = payload.Length;
+            byte[] buffer = new byte[4 + length];
+            BitConverter.GetBytes(length).CopyTo(buffer, 0);
+            payload.CopyTo(buffer, 4);
 
-        await _stream.WriteAsync(buffer, 0, buffer.Length);
+            await _stream.WriteAsync(buffer, 0, buffer.Length);
+        }
+        catch {}
     }
 
     public async Task<byte[]?> ReceiveAsync(CancellationToken ct)
@@ -61,7 +65,7 @@ public class FramedTcp : IDisposable
 
             if (read <= 0) 
                 return false;
-                
+
             offset += read;
         }
 
