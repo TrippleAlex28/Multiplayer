@@ -237,8 +237,8 @@ public sealed class NetClient : IDisposable
 
     private void CleanupFailedConnect()
     {
-        _framed?.Dispose();
-        _udp?.Dispose();
+        try { _framed?.Dispose(); } catch {}
+        try { _udp?.Dispose(); } catch {}
 
         _framed =  null;
         _tcp = null;
