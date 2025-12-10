@@ -132,7 +132,7 @@ public sealed class NetServer : IDisposable
 
         // Add client to the list 
         int clientId = _nextClientId++;
-        IPAddress remoteIp = ((IPEndPoint)tcpClient.Client.RemoteEndPoint).Address;
+        IPAddress remoteIp = ((IPEndPoint)tcpClient.Client.RemoteEndPoint!).Address;
         IPEndPoint udpEndPoint = new(remoteIp, crPacket.LocalUdpPort);
         ClientConnection connection = new()
         {

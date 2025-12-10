@@ -191,7 +191,7 @@ public sealed class NetClient : IDisposable
     private void HandleDisconnectPacket(Tcp_DisconnectPacket packet)
     {
         // Fire and forget
-        DisconnectAsync("Kicked by Server"); 
+        _ = DisconnectAsync("Kicked by Server"); 
     }
 
     private void HandleSnapshotPacket(Udp_SnapshotPacket packet)

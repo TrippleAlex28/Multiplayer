@@ -44,6 +44,7 @@ public class MultiplayerClientSession : IGameSession
         _initialized = true;
     }
 
+    #region Connection
     public async Task ConnectAsync(string host)
     {
         if (!_initialized) 
@@ -58,6 +59,7 @@ public class MultiplayerClientSession : IGameSession
         await _netClient.DisconnectAsync(reason);
         _connected = false;
     }
+    #endregion
 
     public void HandleInput(InputSnapshot inputSnapshot)
     {
