@@ -23,6 +23,7 @@ public class MultiplayerClientSession : IGameSession
     private uint _nextSequenceNumber = 1;
 
     private bool _initialized = false;
+    private bool _connected = false;
     
     public MultiplayerClientSession()
     {
@@ -38,16 +39,25 @@ public class MultiplayerClientSession : IGameSession
     {
         _netClient.ChatMessageReceived += OnChatMessageReceived;
         _netClient.SnapshotPacketReceived += OnSnapshotPacketReceived;
-
-        if (!_netClient.Connected)
-            await _netClient.ConnectAsync("127.0.0.1");
             
         _initialized = true;
     }
 
+    public async Task ConnectAsync(string host)
+    {
+        bool success = await _netClient.ConnectAsync(host);
+        _connected = success;
+    }
+
+    public async Task Disconnect(string reason)
+    {
+        await _netClient.DisconnectAsync(reason);
+        _connected = false;
+    }
+
     public void HandleInput(InputSnapshot inputSnapshot)
     {
-        if (!_initialized) return;
+        if (!_initialized || !_connected) return;
         
         // CONVERT INPUT INTO NETACTIONS
         _frameActions = NetActionFactory.Create(inputSnapshot);
@@ -74,30 +84,31 @@ public class MultiplayerClientSession : IGameSession
 
     public void Update(GameTime gameTime)
     {
-        if (!_initialized) return;
+        if (!_initialized || !_connected) return;
         
         gs.Update(gameTime);
     }
 
     public void DrawWorld(SpriteBatch spriteBatch)
     {
-        if (!_initialized) return;
+        if (!_initialized || !_connected) return;
         
         gs.DrawWorld(spriteBatch);
     }
 
     public void DrawUI(SpriteBatch spriteBatch)
     {
-        if (!_initialized) return;
+        if (!_initialized || !_connected) return;
         
         gs.DrawUI(spriteBatch);
     }
 
     public void SwitchScene(string sceneKey)
     {
-        if (!_initialized) return;
+        if (!_initialized || !_connected) return;
         
-        gs.SwitchScene(sceneKey);
+        // Client is not allowed to switch scenes
+        // gs.SwitchScene(sceneKey);
     }
 
     #region Event Handlers

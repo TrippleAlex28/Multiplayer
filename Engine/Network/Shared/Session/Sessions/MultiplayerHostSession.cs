@@ -47,7 +47,8 @@ public class MultiplayerHostSession : IGameSession
 
         gs.RegisterExistingWorldObjects();
 
-        await _clientSession.Initialize();
+        _clientSession.Initialize();
+        await _clientSession.ConnectAsync("127.0.0.1");
 
         _initialized = true;
     }
