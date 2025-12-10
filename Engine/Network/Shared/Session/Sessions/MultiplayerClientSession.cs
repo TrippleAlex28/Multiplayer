@@ -45,6 +45,9 @@ public class MultiplayerClientSession : IGameSession
 
     public async Task ConnectAsync(string host)
     {
+        if (!_initialized) 
+            return;
+        
         bool success = await _netClient.ConnectAsync(host);
         _connected = success;
     }
