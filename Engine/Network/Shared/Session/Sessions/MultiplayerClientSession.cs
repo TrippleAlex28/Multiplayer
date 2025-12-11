@@ -150,7 +150,7 @@ public class MultiplayerClientSession : IGameSession
 
     private void OnDisconnected(string reason)
     {
-        Console.WriteLine($"Disconnected: {reason}");
+        Console.WriteLine($"MPClient Disconnected: {reason}");
     }
     #endregion
     

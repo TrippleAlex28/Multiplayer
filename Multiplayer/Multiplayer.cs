@@ -19,6 +19,7 @@ public class Multiplayer : Game
     public static InputSnapshot InputSnapshot { get; set; }
 
     public static Texture2D BlankTexture;
+    public static SpriteFont Arial;
 
     public Multiplayer()
     {
@@ -63,6 +64,8 @@ public class Multiplayer : Game
         BlankTexture = new Texture2D(GraphicsDevice, 1, 1);
         BlankTexture.SetData([Color.White]);
 
+        Arial = Content.Load<SpriteFont>("Fonts/Arial");
+        
         // CurrentSession = new SingleplayerSession(() => new Player());
         CurrentSession = new MultiplayerHostSession(() => new Player());
         ClientManager.Instance.NetRole = NetRole.Host;

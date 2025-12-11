@@ -1,3 +1,4 @@
+using System.Net;
 using Engine.Network.Client;
 using Engine.Network.Server;
 using Engine.Network.Shared.Action;
@@ -13,6 +14,10 @@ public class MultiplayerHostSession : IGameSession
     public GameState gs => _clientSession.gs;
 
     private NetServer _netServer;
+    public IPAddress BindAddress => _netServer.BindAddress;
+    public int TcpPort => _netServer.TcpPort;
+    public int UdpPort => _netServer.UdpPort;
+    
     private NetClient _netClient;
 
     private MultiplayerClientSession _clientSession;
@@ -117,7 +122,7 @@ public class MultiplayerHostSession : IGameSession
     #region Event Handlers
     private void OnClientConnected(ClientConnection connection)
     {
-        Console.WriteLine("Client Connected");
+        Console.WriteLine("MPHost: Client Connected");
         gs.AddWorldObject(
             _playerConstructor(),
             owningClientId: connection.ClientId
@@ -126,7 +131,7 @@ public class MultiplayerHostSession : IGameSession
 
     private void OnClientDisconnected(ClientConnection connection)
     {
-        Console.WriteLine("Client Disconnected");
+        Console.WriteLine("MPHost: Client Disconnected");
         gs.RemoveClientWorldObjects(connection.ClientId);
     }
     

@@ -37,8 +37,7 @@ public sealed class NetServer : IDisposable
     private Mapping? _upnpTcpMapping;
     private Mapping? _upnpUdpMapping;
 
-    public IPAddress BindAddress { get; }
-
+    public IPAddress BindAddress { get; private set; }
 
     private readonly Dictionary<int, ClientConnection> _clients = new();
     private int _nextClientId = 1;
@@ -81,7 +80,7 @@ public sealed class NetServer : IDisposable
 
     private async Task LogPublicIPAsync()
     {
-        Console.WriteLine($"PUBLIC: {await NetworkUtils.GetPublicIPAsync()}");
+        
     }
     
     #region Connection
@@ -116,7 +115,7 @@ public sealed class NetServer : IDisposable
     {
         if (!Running)
             return;
-            
+
         Running = false;
         
         _cts?.Cancel();
