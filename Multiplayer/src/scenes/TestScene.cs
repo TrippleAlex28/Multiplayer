@@ -33,7 +33,7 @@ public class TestScene : SceneBase
                 spriteBatch.DrawString(
                     Multiplayer.Arial,
                     $"Connected: {clientSession.Connected}",
-                    new Vector2(20, 20),
+                    new Vector2(20, 50),
                     Color.Black
                 );
                 break;

@@ -34,7 +34,9 @@ public class MultiplayerHostSession : IGameSession
 
     public MultiplayerHostSession(Func<GameObject> playerConstructor)
     {        
-        _netServer = new();
+        _netServer = new(
+            maxPlayers: 4
+        );
         _netClient = new();
 
         _clientSession = new(_netClient);
