@@ -61,12 +61,12 @@ public class MultiplayerClientSession : IGameSession
     }
     #endregion
 
-    public void HandleInput(InputSnapshot inputSnapshot)
+    public void HandleInput(List<NetAction> actions)
     {
         if (!_initialized || !_connected) return;
         
         // CONVERT INPUT INTO NETACTIONS
-        _frameActions = NetActionFactory.Create(inputSnapshot);
+        _frameActions = actions;
 
         foreach (NetAction action in _frameActions)
         {

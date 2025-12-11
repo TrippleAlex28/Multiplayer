@@ -3,23 +3,25 @@ using Microsoft.Xna.Framework;
 
 namespace Engine.Network.Shared.Action;
 
-public enum NetActionType
-{
-    Move
-}
-
 public abstract class NetAction
 {
-    public abstract NetActionType Type { get; }
+    public abstract byte Type { get; }
     
     public uint SequenceNumber { get; set; }
     public uint Tick { get; protected set; }
 
+    // Registry filled with constructors
+    private static readonly Dictionary<byte, Func<NetAction>> _constructors = new();
+    public static void RegisterAction(byte type, Func<NetAction> constructor)
+    {
+        _constructors[type] = constructor;
+    }
+    
     public abstract void Apply(GameState gs, int clientId);
 
     public void Serialize(BinaryWriter w)
     {
-        w.Write((byte)Type);
+        w.Write(Type);
 
         w.Write(SequenceNumber);
         w.Write(Tick);
@@ -29,14 +31,14 @@ public abstract class NetAction
 
     public static NetAction Deserialize(BinaryReader r)
     {
-        NetActionType type = (NetActionType)r.ReadByte();
+        byte type = r.ReadByte();
 
-        NetAction action = type switch
+        if (!_constructors.TryGetValue(type, out var constructor))
         {
-            NetActionType.Move => new MoveAction(),
+            throw new InvalidDataException($"Unknown NetActionType: {type}");
+        }
 
-            _ => throw new InvalidDataException($"Unknown NetActionType: {type}")
-        };
+        NetAction action = constructor();
 
         action.SequenceNumber = r.ReadUInt32();
         action.Tick = r.ReadUInt32();
@@ -53,30 +55,4 @@ public abstract class NetAction
 public sealed class InputSnapshot
 {
     public Vector2 DesiredMovementDirection = Vector2.Zero;
-}
-
-public static class NetActionFactory
-{
-    private readonly static Dictionary<NetActionType, Func<InputSnapshot, NetAction>> _constructors = new()
-    {
-        { NetActionType.Move, (InputSnapshot inputSnapshot) => new MoveAction(inputSnapshot) }
-    };
-
-    public static void Register(NetActionType type, Func<InputSnapshot, NetAction> constructor)
-    {
-        _constructors[type] = constructor;
-    }
-
-    public static List<NetAction> Create(InputSnapshot inputSnapshot)
-    {
-        List<NetAction> actions = new();
-
-        foreach (var kvp in _constructors)
-        {
-            NetAction action = kvp.Value(inputSnapshot);
-            actions.Add(action);    
-        }
-        
-        return actions;
-    }
 }

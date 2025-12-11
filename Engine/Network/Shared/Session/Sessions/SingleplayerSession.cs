@@ -34,11 +34,11 @@ public class SingleplayerSession : IGameSession
         _initialized = true;
     }
     
-    public void HandleInput(InputSnapshot inputSnapshot)
+    public void HandleInput(List<NetAction> actions)
     {
         if (!_initialized) return;
         
-        _frameActions = NetActionFactory.Create(inputSnapshot);
+        _frameActions = actions;
     }
 
     public void Update(GameTime gameTime)

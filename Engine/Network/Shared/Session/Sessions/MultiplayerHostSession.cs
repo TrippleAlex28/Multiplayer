@@ -53,11 +53,11 @@ public class MultiplayerHostSession : IGameSession
         _initialized = true;
     }
 
-    public void HandleInput(InputSnapshot inputSnapshot)
+    public void HandleInput(List<NetAction> actions)
     {
         if (!_initialized) return;
         
-        _clientSession.HandleInput(inputSnapshot);
+        _clientSession.HandleInput(actions);
     }
 
     public void Update(GameTime gameTime)

@@ -11,7 +11,7 @@ public interface IGameSession : IDisposable
 
     Task Initialize();
     
-    void HandleInput(InputSnapshot inputSnapshot);
+    void HandleInput(List<NetAction> actions);
 
     void Update(GameTime gameTime);
 

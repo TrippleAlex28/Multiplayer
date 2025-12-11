@@ -21,15 +21,28 @@ public class Multiplayer : Game
 
     public Multiplayer()
     {
-        #region Scenes
-        SceneRegistry.Register("TestScene", () => new TestScene());
-        SceneRegistry.Register("TestScene2", () => new TestScene2());
+        #region Keybinds
         #endregion
-
+        
+        #region NetActions
+        NetAction.RegisterAction(
+            (byte)NetActionType.Move,
+            () => new MoveAction()
+        );
+        InputToActionFactory.Register(
+            (InputSnapshot input) => new MoveAction(input)
+        );
+        #endregion
+        
         #region Objects
         NetObjectFactory.Register<GameObject>(NetObjectTypeIds.GameObject);
         NetObjectFactory.Register<SceneRoot>(NetObjectTypeIds.SceneRoot);
         NetObjectFactory.Register<Player>(NetObjectTypeIds.Player);
+        #endregion
+        
+        #region Scenes
+        SceneRegistry.Register("TestScene", () => new TestScene());
+        SceneRegistry.Register("TestScene2", () => new TestScene2());
         #endregion
         
         _graphics = new GraphicsDeviceManager(this);
@@ -79,7 +92,7 @@ public class Multiplayer : Game
         if (currKb.IsKeyDown(Keys.S))
             InputSnapshot.DesiredMovementDirection.Y += 1;
 
-        CurrentSession.HandleInput(InputSnapshot);
+        CurrentSession.HandleInput(InputToActionFactory.Create(InputSnapshot));
         CurrentSession.Update(gameTime);
 
         base.Update(gameTime);

@@ -1,11 +1,15 @@
+using System.IO;
+using Engine;
+using Engine.Network.Shared;
+using Engine.Network.Shared.Action;
 using Engine.Network.Shared.State;
 using Microsoft.Xna.Framework;
 
-namespace Engine.Network.Shared.Action;
+namespace Multiplayer;
 
 public class MoveAction : NetAction
 {
-    public override NetActionType Type => NetActionType.Move;
+    public override byte Type => (byte)NetActionType.Move;
     
     public Vector2 DesiredDirection { get; private set; }
     
