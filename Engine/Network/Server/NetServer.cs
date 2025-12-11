@@ -21,6 +21,8 @@ public sealed class ClientConnection
 
 public sealed class NetServer : IDisposable
 {
+    public bool Running { get; private set; } = false;
+    
     private readonly int _maxPlayers;
 
     private readonly int _tcpPort;
@@ -106,11 +108,27 @@ public sealed class NetServer : IDisposable
                 }
             });
         }
+
+        Running = true;
     }
 
     public void Stop()
     {
+        if (!Running)
+            return;
+            
+        Running = false;
+        
         _cts?.Cancel();
+        
+        _tcpListener.Stop();
+        _udp.Close();
+
+        foreach (ClientConnection connection in _clients.Values)
+        {
+            DisconnectClient(connection);
+        }
+        _clients.Clear();
 
         if (_useUpnp)
         {
@@ -121,17 +139,6 @@ public sealed class NetServer : IDisposable
                 await UpnpHelper.TryRemoveAsync(_upnpUdpMapping);
             });
         }
-        
-        _tcpListener.Stop();
-        _udp.Close();
-
-        foreach (ClientConnection connection in _clients.Values)
-        {
-            ClientDisconnected?.Invoke(connection);
-
-            connection.Framed.Dispose();
-        }
-        _clients.Clear();
     }
     #endregion
     
