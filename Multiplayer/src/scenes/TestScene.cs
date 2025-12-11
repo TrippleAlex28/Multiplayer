@@ -20,35 +20,53 @@ public class TestScene : SceneBase
     {
         base.DrawUI(spriteBatch);
 
-        if (!(ClientManager.Instance.NetRole == Engine.Network.NetRole.Host))
-            return;
-        
-        MultiplayerHostSession session = (MultiplayerHostSession)Multiplayer.CurrentSession;
-
-        spriteBatch.DrawString(
-            Multiplayer.Arial,
-            "HOST",
-            new Vector2(20, 20),
-            Color.Black
-        );
-        
-        spriteBatch.DrawString(
-            Multiplayer.Arial,
-            $"Local TCP IP (LAN): {session.BindAddress}:{session.TcpPort}",
-            new Vector2(20, 50),
-            Color.Black
-        );
-        spriteBatch.DrawString(
-            Multiplayer.Arial,
-            $"Local UDP IP (LAN): {session.BindAddress}:{session.UdpPort}",
-            new Vector2(20, 75),
-            Color.Black
-        );
-        spriteBatch.DrawString(
-            Multiplayer.Arial,
-            $"PUBLIC IP: {_publicIP}",
-            new Vector2(20, 100),
-            Color.Black
-        );
+        switch (ClientManager.Instance.NetRole)
+        {
+            case NetRole.Client:
+                MultiplayerClientSession clientSession = (MultiplayerClientSession)Multiplayer.CurrentSession;
+                spriteBatch.DrawString(
+                    Multiplayer.Arial,
+                    "CLIENT",
+                    new Vector2(20, 20),
+                    Color.Black
+                );
+                spriteBatch.DrawString(
+                    Multiplayer.Arial,
+                    $"Connected: {clientSession.Connected}",
+                    new Vector2(20, 20),
+                    Color.Black
+                );
+                break;
+            case NetRole.Host:
+                MultiplayerHostSession hostSession = (MultiplayerHostSession)Multiplayer.CurrentSession;
+                spriteBatch.DrawString(
+                    Multiplayer.Arial,
+                    "HOST",
+                    new Vector2(20, 20),
+                    Color.Black
+                );
+                
+                spriteBatch.DrawString(
+                    Multiplayer.Arial,
+                    $"Local TCP IP (LAN): {hostSession.BindAddress}:{hostSession.TcpPort}",
+                    new Vector2(20, 50),
+                    Color.Black
+                );
+                spriteBatch.DrawString(
+                    Multiplayer.Arial,
+                    $"Local UDP IP (LAN): {hostSession.BindAddress}:{hostSession.UdpPort}",
+                    new Vector2(20, 75),
+                    Color.Black
+                );
+                spriteBatch.DrawString(
+                    Multiplayer.Arial,
+                    $"PUBLIC IP: {_publicIP}",
+                    new Vector2(20, 100),
+                    Color.Black
+                );
+                break;
+            default:
+                break;
+        }
     }
 }
