@@ -34,6 +34,7 @@ public class SingleplayerSession : IGameSession
         _initialized = true;
     }
     
+    #region Tick
     public void HandleInput(List<NetAction> actions)
     {
         if (!_initialized) return;
@@ -64,7 +65,14 @@ public class SingleplayerSession : IGameSession
         
         gs.DrawUI(spriteBatch);
     }
+    #endregion
 
+    #region Actions
+    public void Stop()
+    {
+        
+    }
+    
     public void SwitchScene(string sceneKey)
     {
         if (!_initialized) return;
@@ -76,6 +84,7 @@ public class SingleplayerSession : IGameSession
             owningClientId: 0
         );
     }
+    #endregion
     
     public void Dispose()
     {

@@ -1,4 +1,5 @@
 ﻿using Engine;
+using Engine.Network;
 using Engine.Network.Shared.Action;
 using Engine.Network.Shared.Object;
 using Engine.Network.Shared.Session;
@@ -10,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 namespace Multiplayer;
 
 public class Multiplayer : Game
-{
+{    
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
@@ -64,6 +65,7 @@ public class Multiplayer : Game
 
         // CurrentSession = new SingleplayerSession(() => new Player());
         CurrentSession = new MultiplayerHostSession(() => new Player());
+        ClientManager.Instance.NetRole = NetRole.Host;
         CurrentSession.Initialize();
     }
 
@@ -110,4 +112,15 @@ public class Multiplayer : Game
         CurrentSession.DrawUI(_spriteBatch);
         _spriteBatch.End();
     }
+
+    protected override void OnExiting(object sender, ExitingEventArgs args)
+    {
+        CurrentSession.Stop();
+
+        // Extra safety: the server should automatically remove UPnP mappings when it stops
+        UpnpHelper.TryRemoveAllGameMappings();
+
+        base.OnExiting(sender, args);
+    }
+
 }

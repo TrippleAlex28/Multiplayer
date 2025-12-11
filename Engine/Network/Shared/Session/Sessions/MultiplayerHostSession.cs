@@ -53,6 +53,7 @@ public class MultiplayerHostSession : IGameSession
         _initialized = true;
     }
 
+    #region Tick
     public void HandleInput(List<NetAction> actions)
     {
         if (!_initialized) return;
@@ -87,7 +88,9 @@ public class MultiplayerHostSession : IGameSession
         
         _clientSession.DrawUI(spriteBatch);
     }
+    #endregion
 
+    #region Actions
     public void SwitchScene(string sceneKey)
     {
         if (!_initialized) return;
@@ -103,6 +106,13 @@ public class MultiplayerHostSession : IGameSession
             );
         }
     }
+
+
+    public void Stop()
+    {
+        _netServer.Stop();
+    }
+    #endregion
 
     #region Event Handlers
     private void OnClientConnected(ClientConnection connection)

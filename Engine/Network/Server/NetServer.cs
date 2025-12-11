@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using Engine.Network.Shared;
 using Engine.Network.Shared.Packet;
+using Open.Nat;
 
 namespace Engine.Network.Server;
 
@@ -23,10 +24,19 @@ public sealed class NetServer : IDisposable
     private readonly int _maxPlayers;
 
     private readonly int _tcpPort;
+    public int TcpPort => _tcpPort;
     private TcpListener _tcpListener;
 
     private readonly int _udpPort;
+    public int UdpPort => _udpPort;
     private UdpClient _udp;
+
+    private readonly bool _useUpnp;
+    private Mapping? _upnpTcpMapping;
+    private Mapping? _upnpUdpMapping;
+
+    public IPAddress BindAddress { get; }
+
 
     private readonly Dictionary<int, ClientConnection> _clients = new();
     private int _nextClientId = 1;
@@ -41,17 +51,37 @@ public sealed class NetServer : IDisposable
     public event Action? SendSnapshot;
     #endregion
     
-    public NetServer(int maxPlayers = 2, int tcpPort = 7777, int udpPort = 0)
+    public NetServer(int maxPlayers = 2, int tcpPort = 7777, int udpPort = 0, bool bindToAllInterfaces = true, bool useUpnp = true)
     {
         _maxPlayers = maxPlayers;
-
         _tcpPort = tcpPort;
-        _tcpListener = new(IPAddress.Any, _tcpPort);
+        _useUpnp = useUpnp;
 
-        _udp = new(udpPort);
+        if (bindToAllInterfaces)
+        {
+            BindAddress = NetworkUtils.GetPrefferedOutboundIPv4() ?? IPAddress.Loopback;
+            _tcpListener = new(IPAddress.Any, _tcpPort);
+        }
+        else
+        {
+            BindAddress = NetworkUtils.GetServerBindAddress();
+            _tcpListener = new TcpListener(BindAddress, _tcpPort);
+        }
+
+        IPAddress udpBindAddress = bindToAllInterfaces ? IPAddress.Any : BindAddress;
+        _udp = new(new IPEndPoint(udpBindAddress, udpPort));
         _udpPort = ((IPEndPoint)_udp.Client.LocalEndPoint!).Port;
+
+        Console.WriteLine($"TCP: {BindAddress}:{TcpPort}");
+        Console.WriteLine($"UDP: {BindAddress}:{UdpPort}");
+        _ = LogPublicIPAsync();
     }
 
+    private async Task LogPublicIPAsync()
+    {
+        Console.WriteLine($"PUBLIC: {await NetworkUtils.GetPublicIPAsync()}");
+    }
+    
     #region Connection
     public void Start()
     {
@@ -61,12 +91,37 @@ public sealed class NetServer : IDisposable
 
         _ = AcceptLoopAsync(_cts.Token);
         _ = UdpReceiveLoopAsync(_cts.Token);
+
+        if (_useUpnp)
+        {
+            // Fire & Forget
+            _ = Task.Run(async () =>
+            {
+                _upnpTcpMapping = await UpnpHelper.TryForwardTcpAsync(_tcpPort, "TCP", _cts.Token);
+                _upnpUdpMapping = await UpnpHelper.TryForwardUdpAsync(_udpPort, "UDP", _cts.Token);
+
+                if (_upnpTcpMapping == null || _upnpUdpMapping == null)
+                {
+                    Console.WriteLine("Auto Port-Forwarding Failed, Please Port Forward Manually");
+                }
+            });
+        }
     }
 
     public void Stop()
     {
         _cts?.Cancel();
 
+        if (_useUpnp)
+        {
+            // Fire & Forget / Best effort cleanup
+            _ = Task.Run(async () =>
+            {
+                await UpnpHelper.TryRemoveAsync(_upnpTcpMapping);
+                await UpnpHelper.TryRemoveAsync(_upnpUdpMapping);
+            });
+        }
+        
         _tcpListener.Stop();
         _udp.Close();
 

@@ -34,8 +34,17 @@ public sealed class NetClient : IDisposable
     {
         try
         {
+            // Resolve host IPv4 address
+            IPAddress targetIP;
+            if (!IPAddress.TryParse(host, out targetIP!))
+            {
+                IPAddress[] addresses = await Dns.GetHostAddressesAsync(host);
+                targetIP = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)
+                    ?? throw new Exception($"No IPv4 address found for host '{host}'");
+            }
+            
             // Setup Tcp
-            _tcp = new();
+            _tcp = new(AddressFamily.InterNetwork);
             await _tcp.ConnectAsync(host, hostTcpPort);
             _framed = new(_tcp);
 
@@ -50,28 +59,31 @@ public sealed class NetClient : IDisposable
             // Read Respone for either Tcp_ConnectionAccept or TCP_Disconnect
             byte[]? data = await _framed.ReceiveAsync(CancellationToken.None);
             if (data == null)
-                return false;
+            {
+                throw new Exception("Server closed connection before responding");
+            }
             
-            Packet p;
+            Packet packet;
             using (MemoryStream ms = new(data))
             using (BinaryReader r = new(ms))
             {
-                p = Packet.Deserialize(r);
+                packet = Packet.Deserialize(r);
             }
 
-            switch (p.Type)
+            switch (packet.Type)
             {
                 case PacketType.Tcp_ConnectionAccept:
-                    StartRunning((Tcp_ConnectionAcceptPacket)p, host);
+                    StartRunning((Tcp_ConnectionAcceptPacket)packet, host);
                     return true;
                 case PacketType.Tcp_Disconnect:
-                    return false;
+                    throw new Exception($"Server refused connection: {((Tcp_DisconnectPacket)packet).Reason}");
                 default:
-                    return false;
+                    throw new Exception($"Unexpected first packet from server: {packet.Type}");
             }
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"NetClient failed ConnectAsync: {ex.Message}");
             CleanupFailedConnect();
             return false;
         }

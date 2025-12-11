@@ -12,11 +12,11 @@ public interface IGameSession : IDisposable
     Task Initialize();
     
     void HandleInput(List<NetAction> actions);
-
     void Update(GameTime gameTime);
 
     void DrawWorld(SpriteBatch spriteBatch);
     void DrawUI(SpriteBatch spriteBatch);
 
+    void Stop();
     void SwitchScene(string sceneKey);
 }

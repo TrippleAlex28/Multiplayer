@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using System.Xml.XPath;
 using Engine.Network.Client;
 using Engine.Network.Shared.Action;
@@ -61,6 +62,7 @@ public class MultiplayerClientSession : IGameSession
     }
     #endregion
 
+    #region Tick
     public void HandleInput(List<NetAction> actions)
     {
         if (!_initialized || !_connected) return;
@@ -108,6 +110,13 @@ public class MultiplayerClientSession : IGameSession
         
         gs.DrawUI(spriteBatch);
     }
+    #endregion
+
+    #region Actions
+    public void Stop()
+    {
+        Disconnect("Client Stopped").GetAwaiter().GetResult();
+    }
 
     public void SwitchScene(string sceneKey)
     {
@@ -116,6 +125,7 @@ public class MultiplayerClientSession : IGameSession
         // Client is not allowed to switch scenes
         // gs.SwitchScene(sceneKey);
     }
+    #endregion
 
     #region Event Handlers
     public void OnChatMessageReceived(string sender, string message)

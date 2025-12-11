@@ -1,3 +1,5 @@
+using Engine.Network;
+
 namespace Engine;
 
 public sealed class ClientManager
@@ -14,9 +16,13 @@ public sealed class ClientManager
     
     public string Name { get; private set; }
 
+    public NetRole NetRole { get; set; }
+    
     private ClientManager()
     {
         // TODO: Retrieve from config file
         Name = "ClientName";
+
+        NetRole = NetRole.Singleplayer;
     }
 }
