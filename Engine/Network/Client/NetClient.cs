@@ -127,7 +127,17 @@ public sealed class NetClient : IDisposable
         }
         catch
         {
-            await DisconnectAsync("TCP Receive network error");
+            if (Connected)
+            {
+                await DisconnectAsync("TCP Receive network error");
+            }
+        }
+        finally
+        {
+            if (Connected)
+            {
+                await DisconnectAsync("Server closed the TCP connection");
+            }
         }
     }
 

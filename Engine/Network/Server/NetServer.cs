@@ -49,7 +49,6 @@ public sealed class NetServer : IDisposable
     public event Action<ClientConnection>? ClientConnected;
     public event Action<ClientConnection>? ClientDisconnected;
     public event Action <Udp_ActionPacket>? ActionPacketReceived;
-    public event Action? SendSnapshot;
     #endregion
     
     public NetServer(int maxPlayers = 2, int tcpPort = 7777, int udpPort = 0, bool bindToAllInterfaces = true, bool useUpnp = true)
@@ -116,6 +115,12 @@ public sealed class NetServer : IDisposable
         if (!Running)
             return;
 
+        try
+        {
+            BroadcastTcp(new Tcp_DisconnectPacket("Server shutting down").CreatePayload());
+        }
+        catch {}
+        
         Running = false;
         
         _cts?.Cancel();
@@ -138,6 +143,21 @@ public sealed class NetServer : IDisposable
                 await UpnpHelper.TryRemoveAsync(_upnpUdpMapping);
             });
         }
+    }
+    #endregion
+    
+    #region Actions
+    public async Task KickClient(int clientId)
+    {
+        if (!Running)
+            return;
+
+        if (_clients.TryGetValue(clientId, out var connection))
+        {
+            await connection.Framed.SendAsync(new Tcp_DisconnectPacket("You have been kicked from the server").CreatePayload());
+            DisconnectClient(connection);
+        }
+
     }
     #endregion
     
@@ -366,10 +386,7 @@ public sealed class NetServer : IDisposable
     #region Helpers
     private void DisconnectClient(ClientConnection connection)
     {
-        if (connection == null)
-            return;
-
-        if (!_clients.ContainsKey(connection.ClientId))
+        if (connection == null || !_clients.ContainsKey(connection.ClientId))
             return;
 
         ClientDisconnected?.Invoke(connection);
@@ -379,7 +396,7 @@ public sealed class NetServer : IDisposable
 
     private void RemoveClient(ClientConnection connection)
     {
-        if (connection == null)
+        if (connection == null || !_clients.ContainsKey(connection.ClientId))
             return;
 
         try { connection.Framed.Dispose(); } catch {}
