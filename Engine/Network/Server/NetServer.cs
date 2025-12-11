@@ -369,6 +369,9 @@ public sealed class NetServer : IDisposable
         if (connection == null)
             return;
 
+        if (!_clients.ContainsKey(connection.ClientId))
+            return;
+
         ClientDisconnected?.Invoke(connection);
         
         RemoveClient(connection);

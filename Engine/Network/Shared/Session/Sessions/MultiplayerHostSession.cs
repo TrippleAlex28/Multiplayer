@@ -112,7 +112,6 @@ public class MultiplayerHostSession : IGameSession
         }
     }
 
-
     public void Stop()
     {
         _netServer.Stop();
