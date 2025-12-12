@@ -23,7 +23,7 @@ public class Udp_SnapshotPacket : Packet
 
     public Udp_SnapshotPacket(int sceneEpoch, uint tick, Dictionary<int, uint> lastProcessedSeqPerClient, SceneRoot sceneRoot)
     {
-        sceneEpoch = SceneEpoch;
+        SceneEpoch = sceneEpoch;
         Tick = tick;
         LastProcessedSequencePerClient = lastProcessedSeqPerClient;
         WorldRoot = sceneRoot;
