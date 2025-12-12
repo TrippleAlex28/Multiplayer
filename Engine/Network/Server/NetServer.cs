@@ -71,15 +71,6 @@ public sealed class NetServer : IDisposable
         IPAddress udpBindAddress = bindToAllInterfaces ? IPAddress.Any : BindAddress;
         _udp = new(new IPEndPoint(udpBindAddress, udpPort));
         _udpPort = ((IPEndPoint)_udp.Client.LocalEndPoint!).Port;
-
-        Console.WriteLine($"TCP: {BindAddress}:{TcpPort}");
-        Console.WriteLine($"UDP: {BindAddress}:{UdpPort}");
-        _ = LogPublicIPAsync();
-    }
-
-    private async Task LogPublicIPAsync()
-    {
-        
     }
     
     #region Connection
@@ -246,6 +237,11 @@ public sealed class NetServer : IDisposable
                 }
                 catch (ObjectDisposedException)
                 {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Hmmmm... Unknown exception: {ex.Message}");
                     break;
                 }
                 

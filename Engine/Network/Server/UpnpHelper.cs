@@ -1,6 +1,6 @@
 using Open.Nat;
 
-namespace Engine.Network;
+namespace Engine.Network.Server;
 
 public static class UpnpHelper
 {

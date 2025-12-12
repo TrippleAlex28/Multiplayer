@@ -107,6 +107,7 @@ public class MultiplayerHostSession : IGameSession
         
         gs.SceneEpoch++;
 
+        // Add a player pawn for all connected clients
         foreach (var kvp in _netServer.Clients)
         {
             gs.AddWorldObject(

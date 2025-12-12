@@ -1,3 +1,4 @@
+using System;
 using Engine.Network.Shared;
 using Engine.Network.Shared.Session;
 using Engine.Scene;
@@ -23,7 +24,6 @@ public class TestScene2 : SceneBase
     private KeyboardState currKb;
     public override void Update(GameTime gameTime)
     {
-        prevKb = currKb;
         currKb = Keyboard.GetState();
         
         if (currKb.IsKeyDown(Keys.Enter) && prevKb.IsKeyUp(Keys.Enter))
@@ -32,6 +32,8 @@ public class TestScene2 : SceneBase
         }
         
         base.Update(gameTime);
+        
+        prevKb = currKb;
     }
 
     public override void DrawUI(SpriteBatch spriteBatch)

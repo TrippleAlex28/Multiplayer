@@ -8,6 +8,8 @@ public class FramedTcp : IDisposable
     private readonly NetworkStream _stream;
     private readonly byte[] _lenBuffer = new byte[4];
 
+    private readonly SemaphoreSlim _sendLock = new(1, 1);
+
     public FramedTcp(TcpClient tcp)
     {
         _tcp = tcp;
@@ -21,6 +23,7 @@ public class FramedTcp : IDisposable
         if (!Connected)
             return;
 
+        await _sendLock.WaitAsync();
         try
         {
             int length = payload.Length;
@@ -29,8 +32,13 @@ public class FramedTcp : IDisposable
             payload.CopyTo(buffer, 4);
 
             await _stream.WriteAsync(buffer, 0, buffer.Length);
+            await _stream.FlushAsync();
         }
         catch {}
+        finally
+        {
+            _sendLock.Release();
+        }
     }
 
     public async Task<byte[]?> ReceiveAsync(CancellationToken ct)

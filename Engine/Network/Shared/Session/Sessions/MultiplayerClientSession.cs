@@ -166,7 +166,7 @@ public class MultiplayerClientSession : IGameSession
     private void OnSceneChangePacketReceived(Tcp_SceneChangePacket packet)
     {
         // outdated packet
-        if (packet.SceneEpoch <= gs.SceneEpoch) 
+        if (packet.SceneEpoch <= gs.SceneEpoch)
             return;
         
         // stop prediction + clear buffers

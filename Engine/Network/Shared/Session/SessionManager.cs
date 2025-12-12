@@ -142,7 +142,7 @@ public sealed class SessionManager
 
         if (targetSceneKey != null && newType != SessionType.MultiplayerClient)
         {
-            newSession.SwitchScene(targetSceneKey);
+            CurrentSession.SwitchScene(targetSceneKey);
             SceneChanged?.Invoke(targetSceneKey);
         }
     }

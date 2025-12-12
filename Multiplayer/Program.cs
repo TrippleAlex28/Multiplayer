@@ -1,5 +1,5 @@
 ﻿using System;
-using Engine.Network;
+using Engine.Network.Server;
 
 internal static class Program
 {

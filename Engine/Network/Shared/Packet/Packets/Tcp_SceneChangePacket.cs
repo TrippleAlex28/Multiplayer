@@ -2,7 +2,7 @@ namespace Engine.Network.Shared.Packet;
 
 public class Tcp_SceneChangePacket : Packet
 {
-    public override PacketType Type => PacketType.Tcp_Chat;
+    public override PacketType Type => PacketType.Tcp_SceneChange;
 
     public int SceneEpoch { get; private set; }
     public string NewSceneKey { get; private set; } = string.Empty;

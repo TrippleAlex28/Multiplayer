@@ -92,7 +92,7 @@ public sealed class NetClient : IDisposable
 
     public async Task DisconnectAsync(string reason)
     {
-        if (_framed == null)
+        if (_framed == null || !Connected)
             return;
 
         try
@@ -128,17 +128,11 @@ public sealed class NetClient : IDisposable
         }
         catch
         {
-            if (Connected)
-            {
-                await DisconnectAsync("TCP Receive network error");
-            }
+            await DisconnectAsync("TCP Receive network error");
         }
         finally
         {
-            if (Connected)
-            {
-                await DisconnectAsync("Server closed the TCP connection");
-            }
+            await DisconnectAsync("Server closed the TCP connection");
         }
     }
 
