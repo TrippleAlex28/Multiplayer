@@ -74,9 +74,17 @@ public sealed class NetServer : IDisposable
     }
     
     #region Connection
-    public void Start()
+    public bool Start()
     {
-        _tcpListener.Start();
+        try
+        {
+            _tcpListener.Start();
+        }
+        catch
+        {
+            Console.WriteLine("Server startup error");
+            return false;
+        }
 
         _cts = new();
 
@@ -99,6 +107,7 @@ public sealed class NetServer : IDisposable
         }
 
         Running = true;
+        return true;
     }
 
     public void Stop()
@@ -215,10 +224,19 @@ public sealed class NetServer : IDisposable
             UdpEndPoint = udpEndPoint,
         };
         _clients.Add(clientId, connection);
-        ClientConnected?.Invoke(connection);
 
         // Send accept packet
-        await framed.SendAsync(new Tcp_ConnectionAcceptPacket(clientId, ClientManager.Instance.Name, _udpPort).CreatePayload());
+        await framed.SendAsync(
+            new Tcp_ConnectionAcceptPacket(
+                clientId, 
+                ClientManager.Instance.Name, 
+                _udpPort, 
+                SessionManager.Instance.CurrentSceneKey!, 
+                SessionManager.Instance.CurrentSession!.gs.SceneEpoch
+            ).CreatePayload()
+        );
+
+        ClientConnected?.Invoke(connection);
 
         // Listen for furthur TCP packets from this client
         try

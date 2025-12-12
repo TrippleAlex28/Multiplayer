@@ -240,6 +240,9 @@ public sealed class NetClient : IDisposable
         this.HostName = packet.HostName;
         this._serverUdpEndPoint = new(IPAddress.Parse(host), packet.HostUdpPort);
 
+        SessionManager.Instance.CurrentSession!.gs.SceneEpoch = packet.CurrentSceneEpoch;
+        SessionManager.Instance.CurrentSession!.SwitchScene(packet.CurrentSceneKey);
+
         _cts = new();
         _ = TcpReceiveLoopAsync(_cts.Token);
         _ = UdpReceiveLoopAsync(_cts.Token);

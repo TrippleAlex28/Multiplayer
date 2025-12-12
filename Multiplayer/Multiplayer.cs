@@ -1,5 +1,6 @@
 ﻿using Engine;
 using Engine.Network;
+using Engine.Network.Server;
 using Engine.Network.Shared;
 using Engine.Network.Shared.Action;
 using Engine.Network.Shared.Object;
@@ -120,10 +121,7 @@ public class Multiplayer : Game
         SessionManager.Instance.ShutdownCurrentSession();
 
         // Extra safety: the server should automatically remove UPnP mappings when it stops
-        /*
-        Kind of fucked, if the host and one of the clients are on the same network, when the client disconnects it removes the UPnP routes that the host uses
-        */
-        // UpnpHelper.TryRemoveAllGameMappings();
+        UpnpHelper.TryRemoveAllGameMappings();
         
         base.OnExiting(sender, args);
     }

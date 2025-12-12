@@ -128,9 +128,11 @@ public class MultiplayerHostSession : IGameSession
     #endregion
 
     #region Event Handlers
-    private void OnClientConnected(ClientConnection connection)
+    private async void OnClientConnected(ClientConnection connection)
     {
         Console.WriteLine("MPHost: Client Connected");
+        
+        // Add client player pawn
         gs.AddWorldObject(
             _playerConstructor(),
             owningClientId: connection.ClientId

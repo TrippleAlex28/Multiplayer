@@ -20,20 +20,14 @@ public class TestScene2 : SceneBase
         WorldRoot.AddChild(dummy);
     }
 
-    private KeyboardState prevKb;
-    private KeyboardState currKb;
     public override void Update(GameTime gameTime)
     {
-        currKb = Keyboard.GetState();
-        
-        if (currKb.IsKeyDown(Keys.Enter) && prevKb.IsKeyUp(Keys.Enter))
+        if (Keyboard.GetState().IsKeyDown(Keys.D1))
         {
             SessionManager.Instance.CurrentSession?.SwitchScene("TestScene");
         }
         
         base.Update(gameTime);
-        
-        prevKb = currKb;
     }
 
     public override void DrawUI(SpriteBatch spriteBatch)

@@ -136,6 +136,7 @@ public sealed class SessionManager
         }
 
         await newSession.Initialize();
+        
         CurrentSession = newSession;
         CurrentType = newType;
         SessionChanged?.Invoke(CurrentSession, CurrentType);
