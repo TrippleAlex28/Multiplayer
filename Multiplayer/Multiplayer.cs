@@ -49,7 +49,7 @@ public class Multiplayer : Game
         #endregion
         
         SessionManager.Instance.PlayerConstructor = () => new Player();
-        
+
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
@@ -119,7 +119,7 @@ public class Multiplayer : Game
         SessionManager.Instance.ShutdownCurrentSession();
 
         // Extra safety: the server should automatically remove UPnP mappings when it stops
-        UpnpHelper.TryRemoveAllGameMappings();
+        // UpnpHelper.TryRemoveAllGameMappings();
 
         base.OnExiting(sender, args);
     }
