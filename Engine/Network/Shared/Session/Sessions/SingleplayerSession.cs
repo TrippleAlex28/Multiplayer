@@ -7,7 +7,7 @@ namespace Engine.Network.Shared.Session;
 
 public class SingleplayerSession : IGameSession
 {
-    public GameState gs { get; } = new("TestScene");
+    public GameState gs { get; } = new("LoadingScene");
 
     /// <summary>
     /// Actions performed this frame, queued to be applied

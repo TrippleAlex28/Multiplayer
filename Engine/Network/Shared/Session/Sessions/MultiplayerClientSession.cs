@@ -15,7 +15,7 @@ public class MultiplayerClientSession : IGameSession
 {
     public GameState gs => _predictedState;
     
-    private GameState _predictedState = new("TestScene");
+    private GameState _predictedState = new("LoadingScene");
     private NetClient _netClient;
     public bool Connected => _netClient.Connected;
 

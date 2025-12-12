@@ -43,6 +43,7 @@ public class Multiplayer : Game
         #endregion
         
         #region Scenes
+        SceneRegistry.Register("LoadingScene", () => new LoadingScene());
         SceneRegistry.Register("MainMenuScene", () => new MainMenuScene());
         SceneRegistry.Register("TestScene", () => new TestScene());
         SceneRegistry.Register("TestScene2", () => new TestScene2());
