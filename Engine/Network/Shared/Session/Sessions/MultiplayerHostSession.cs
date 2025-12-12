@@ -102,10 +102,10 @@ public class MultiplayerHostSession : IGameSession
     {
         if (!_initialized) return;
         
-        gs.SceneEpoch++;
-        
         gs.SwitchScene(sceneKey);
         gs.RegisterExistingWorldObjects();
+        
+        gs.SceneEpoch++;
 
         foreach (var kvp in _netServer.Clients)
         {

@@ -140,7 +140,7 @@ public class MultiplayerClientSession : IGameSession
     public void OnSnapshotPacketReceived(Udp_SnapshotPacket packet)
     {
         // snapshot packet from old scene
-        if (packet.SceneEpoch <= gs.SceneEpoch)
+        if (packet.SceneEpoch < gs.SceneEpoch)
             return;
         
         // we are behind, queue this packet
