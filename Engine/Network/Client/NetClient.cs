@@ -1,3 +1,4 @@
+using System.Data.SqlTypes;
 using System.Net;
 using System.Net.Sockets;
 using Engine.Network.Shared;
@@ -19,6 +20,7 @@ public sealed class NetClient : IDisposable
     private CancellationTokenSource? _cts;
 
     #region Events
+    public event Action<string, int>? ConnectedResult;
     public event Action<string, string>? ChatMessageReceived;
     public event Action<Udp_SnapshotPacket>? SnapshotPacketReceived;
     public event Action<Tcp_SceneChangePacket>? SceneChangePacketReceived;
@@ -240,8 +242,7 @@ public sealed class NetClient : IDisposable
         this.HostName = packet.HostName;
         this._serverUdpEndPoint = new(IPAddress.Parse(host), packet.HostUdpPort);
 
-        SessionManager.Instance.CurrentSession!.gs.SceneEpoch = packet.CurrentSceneEpoch;
-        SessionManager.Instance.CurrentSession!.SwitchScene(packet.CurrentSceneKey);
+        ConnectedResult?.Invoke(packet.CurrentSceneKey, packet.CurrentSceneEpoch);
 
         _cts = new();
         _ = TcpReceiveLoopAsync(_cts.Token);

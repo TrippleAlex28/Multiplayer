@@ -231,7 +231,7 @@ public sealed class NetServer : IDisposable
                 clientId, 
                 ClientManager.Instance.Name, 
                 _udpPort, 
-                SessionManager.Instance.CurrentSceneKey!, 
+                SessionManager.Instance.CurrentSession!.gs.CurrentScene.Name,
                 SessionManager.Instance.CurrentSession!.gs.SceneEpoch
             ).CreatePayload()
         );

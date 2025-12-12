@@ -41,6 +41,7 @@ public class MultiplayerClientSession : IGameSession
 
     public async Task Initialize()
     {
+        _netClient.ConnectedResult += OnConnectedResult;
         _netClient.ChatMessageReceived += OnChatMessageReceived;
         _netClient.SnapshotPacketReceived += OnSnapshotPacketReceived;
         _netClient.SceneChangePacketReceived += OnSceneChangePacketReceived;
@@ -117,9 +118,9 @@ public class MultiplayerClientSession : IGameSession
     #endregion
 
     #region Actions
-    public void Stop()
+    public async void Stop()
     {
-        Disconnect("Client Stopped").GetAwaiter().GetResult();
+        await Disconnect("Client Stopped");
     }
 
     public void SwitchScene(string sceneKey)
@@ -132,6 +133,12 @@ public class MultiplayerClientSession : IGameSession
     #endregion
 
     #region Event Handlers
+    public void OnConnectedResult(string currentScene, int currentEpoch)
+    {
+        gs.SwitchScene(currentScene);
+        gs.SceneEpoch = currentEpoch;
+    }
+    
     public void OnChatMessageReceived(string sender, string message)
     {
         Console.WriteLine($"{sender}: {message}");
@@ -332,6 +339,7 @@ public class MultiplayerClientSession : IGameSession
     
     public void Dispose()
     {
+        _netClient.ConnectedResult -= OnConnectedResult;
         _netClient.ChatMessageReceived -= OnChatMessageReceived;
         _netClient.SnapshotPacketReceived -= OnSnapshotPacketReceived;
         _netClient.SceneChangePacketReceived -= OnSceneChangePacketReceived;
