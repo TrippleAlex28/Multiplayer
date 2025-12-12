@@ -1,4 +1,3 @@
-using System.Xml;
 using Engine.Scene;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -10,10 +9,15 @@ public sealed class GameState
     public SceneBase CurrentScene { get; private set; }
     
     /// <summary>
+    /// Current scene 'couter'
+    /// </summary>
+    public int SceneEpoch { get; set; } = 0;
+    
+    /// <summary>
     /// Current tick the game is in
     /// </summary>
     public uint Tick { get; set; } = 1;
-
+    
     private int _nextNetworkId = 1;
 
     public GameState(string baseSceneKey)

@@ -5,13 +5,6 @@ using Microsoft.Xna.Framework;
 
 namespace Engine.Network;
 
-public enum NetRole : byte
-{
-    Singleplayer,
-    Client,
-    Host,
-}
-
 public static class NetSerializationExtensions
 {
     public static void Write(this BinaryWriter w, Vector2 value)

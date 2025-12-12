@@ -7,6 +7,7 @@ public class Udp_SnapshotPacket : Packet
 {
     public override PacketType Type => PacketType.Udp_Snapshot;
 
+    public int sceneEpoch { get; private set; }
     public uint Tick { get; private set; }
 
     // for server-side reconciliation

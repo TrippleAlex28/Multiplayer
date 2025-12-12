@@ -24,6 +24,8 @@ public class MultiplayerClientSession : IGameSession
 
     private uint _nextSequenceNumber = 1;
 
+    private Udp_SnapshotPacket? _latestFutureSnapshot;
+
     private bool _initialized = false;
     private bool _connected = false;
     
@@ -41,18 +43,19 @@ public class MultiplayerClientSession : IGameSession
     {
         _netClient.ChatMessageReceived += OnChatMessageReceived;
         _netClient.SnapshotPacketReceived += OnSnapshotPacketReceived;
+        _netClient.SceneChangePacketReceived += OnSceneChangePacketReceived;
         _netClient.Disconnected += OnDisconnected;
             
         _initialized = true;
     }
 
     #region Connection
-    public async Task ConnectAsync(string host)
+    public async Task ConnectAsync(string host, int hostTcpPort = 7777, int localUdpPort = 0)
     {
         if (!_initialized || _connected) 
             return;
         
-        bool success = await _netClient.ConnectAsync(host);
+        bool success = await _netClient.ConnectAsync(host, hostTcpPort, localUdpPort);
         _connected = success;
     }
 
@@ -136,6 +139,17 @@ public class MultiplayerClientSession : IGameSession
     
     public void OnSnapshotPacketReceived(Udp_SnapshotPacket packet)
     {
+        // snapshot packet from old scene
+        if (packet.sceneEpoch <= gs.SceneEpoch)
+            return;
+        
+        // we are behind, queue this packet
+        if (packet.sceneEpoch > gs.SceneEpoch)
+        {
+            _latestFutureSnapshot = packet;
+            return;
+        }
+        
         gs.Tick = packet.Tick;
 
         SyncSceneRoot(packet);
@@ -147,6 +161,27 @@ public class MultiplayerClientSession : IGameSession
         // Reapply remaining pending actions (client-side prediction reconciliation)
         foreach (NetAction action in _pendingActions)
             action.Apply(gs, _netClient.ClientId);
+    }
+
+    private void OnSceneChangePacketReceived(Tcp_SceneChangePacket packet)
+    {
+        // outdated packet
+        if (packet.SceneEpoch <= gs.SceneEpoch) 
+            return;
+        
+        // stop prediction + clear buffers
+        _frameActions.Clear();
+        _pendingActions.Clear();
+
+        gs.SwitchScene(packet.NewSceneKey);
+        gs.SceneEpoch = packet.SceneEpoch;
+
+        // Apply stored future snapshot
+        if (_latestFutureSnapshot != null)
+        {
+            OnSnapshotPacketReceived(_latestFutureSnapshot);
+            _latestFutureSnapshot = null;
+        }
     }
 
     private void OnDisconnected(string reason)
@@ -299,6 +334,7 @@ public class MultiplayerClientSession : IGameSession
     {
         _netClient.ChatMessageReceived -= OnChatMessageReceived;
         _netClient.SnapshotPacketReceived -= OnSnapshotPacketReceived;
+        _netClient.SceneChangePacketReceived -= OnSceneChangePacketReceived;
         _netClient.Disconnected -= OnDisconnected;
 
         _netClient.Dispose();

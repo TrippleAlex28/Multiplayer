@@ -102,6 +102,8 @@ public class MultiplayerHostSession : IGameSession
     {
         if (!_initialized) return;
         
+        gs.SceneEpoch++;
+        
         gs.SwitchScene(sceneKey);
         gs.RegisterExistingWorldObjects();
 
@@ -112,6 +114,10 @@ public class MultiplayerHostSession : IGameSession
                 owningClientId: kvp.Key
             );
         }
+
+        // Send switch scene packet
+        Tcp_SceneChangePacket packet = new(gs.SceneEpoch, sceneKey);
+        _netServer.BroadcastTcp(packet.CreatePayload());
     }
 
     public void Stop()

@@ -346,7 +346,7 @@ public sealed class NetServer : IDisposable
     #endregion
     
     #region Broadcast
-    private void BroadcastTcp(byte[] payload, int? exceptClientId = null)
+    public void BroadcastTcp(byte[] payload, int? exceptClientId = null)
     {
         foreach (var kvp in _clients)
         {

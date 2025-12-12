@@ -21,6 +21,7 @@ public sealed class NetClient : IDisposable
     #region Events
     public event Action<string, string>? ChatMessageReceived;
     public event Action<Udp_SnapshotPacket>? SnapshotPacketReceived;
+    public event Action<Tcp_SceneChangePacket>? SceneChangePacketReceived;
     public event Action<string>? Disconnected;
     #endregion
     
@@ -175,6 +176,9 @@ public sealed class NetClient : IDisposable
             case PacketType.Tcp_Chat:
                 HandleChatPacket((Tcp_ChatPacket)p);
                 break;
+            case PacketType.Tcp_SceneChange:
+                HandleSceneChangePacket((Tcp_SceneChangePacket)p);
+                break;
             case PacketType.Tcp_Disconnect:
                 HandleDisconnectPacket((Tcp_DisconnectPacket)p);
                 break;
@@ -218,6 +222,11 @@ public sealed class NetClient : IDisposable
         ChatMessageReceived?.Invoke(packet.Sender, packet.Message);
     }
 
+    private void HandleSceneChangePacket(Tcp_SceneChangePacket packet)
+    {
+        SceneChangePacketReceived?.Invoke(packet);
+    }
+    
     private void HandleDisconnectPacket(Tcp_DisconnectPacket packet)
     {
         // Fire and forget

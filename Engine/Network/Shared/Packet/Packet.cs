@@ -8,6 +8,7 @@ public enum PacketType : byte
                                 // Client -> Server: This client has disconnected from the session
                                 // Server -> Client: Client has been kicked by the server
     Tcp_Chat = 3,               // Both ways: contains a message and the sender
+    Tcp_SceneChange = 4,        // Server -> Client: 
 
     Udp_Action = 50,            // Client -> Server: contains a list of actions the client performed
     Udp_Snapshot = 51,          // Server -> Client: contains a list of updated replicated objects
@@ -44,6 +45,7 @@ public abstract class Packet
             PacketType.Tcp_ConnectionAccept => new Tcp_ConnectionAcceptPacket(),
             PacketType.Tcp_Disconnect => new Tcp_DisconnectPacket(),
             PacketType.Tcp_Chat => new Tcp_ChatPacket(),
+            PacketType.Tcp_SceneChange => new Tcp_SceneChangePacket(),
 
             PacketType.Udp_Action => new Udp_ActionPacket(),
             PacketType.Udp_Snapshot => new Udp_SnapshotPacket(),

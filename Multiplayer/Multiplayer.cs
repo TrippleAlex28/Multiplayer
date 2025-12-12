@@ -1,5 +1,6 @@
 ﻿using Engine;
 using Engine.Network;
+using Engine.Network.Shared;
 using Engine.Network.Shared.Action;
 using Engine.Network.Shared.Object;
 using Engine.Network.Shared.Session;
@@ -15,7 +16,6 @@ public class Multiplayer : Game
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
 
-    public static IGameSession? CurrentSession { get; private set; }
     public static InputSnapshot InputSnapshot { get; set; }
 
     public static Texture2D BlankTexture;
@@ -43,18 +43,23 @@ public class Multiplayer : Game
         #endregion
         
         #region Scenes
+        SceneRegistry.Register("MainMenuScene", () => new MainMenuScene());
         SceneRegistry.Register("TestScene", () => new TestScene());
         SceneRegistry.Register("TestScene2", () => new TestScene2());
         #endregion
+        
+        SessionManager.Instance.PlayerConstructor = () => new Player();
         
         _graphics = new GraphicsDeviceManager(this);
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
 
-    protected override void Initialize()
+    protected override async void Initialize()
     {
         base.Initialize();
+
+        await SessionManager.Instance.SwitchToSingleplayerAsync("MainMenuScene");
     }
 
     protected override void LoadContent()
@@ -65,13 +70,9 @@ public class Multiplayer : Game
         BlankTexture.SetData([Color.White]);
 
         Arial = Content.Load<SpriteFont>("Fonts/Arial");
-        
-        // CurrentSession = new SingleplayerSession(() => new Player());
-        CurrentSession = new MultiplayerHostSession(() => new Player());
-        ClientManager.Instance.NetRole = NetRole.Host;
-        CurrentSession.Initialize();
     }
 
+    #region Tick
     KeyboardState currKb;
     KeyboardState prevKb;
     protected override void Update(GameTime gameTime)
@@ -81,11 +82,6 @@ public class Multiplayer : Game
 
         prevKb = currKb;
         currKb = Keyboard.GetState();
-
-        if (currKb.IsKeyDown(Keys.Enter) && prevKb.IsKeyUp(Keys.Enter))
-        {
-            CurrentSession.SwitchScene("TestScene2");
-        }
         
         InputSnapshot = new();
         if (currKb.IsKeyDown(Keys.A))
@@ -97,8 +93,8 @@ public class Multiplayer : Game
         if (currKb.IsKeyDown(Keys.S))
             InputSnapshot.DesiredMovementDirection.Y += 1;
 
-        CurrentSession.HandleInput(InputToActionFactory.Create(InputSnapshot));
-        CurrentSession.Update(gameTime);
+        SessionManager.Instance.HandleInput(InputToActionFactory.Create(InputSnapshot));
+        SessionManager.Instance.Update(gameTime);
 
         base.Update(gameTime);
     }
@@ -108,22 +104,24 @@ public class Multiplayer : Game
         GraphicsDevice.Clear(Color.CornflowerBlue);
 
         _spriteBatch.Begin();
-        CurrentSession.DrawWorld(_spriteBatch);
+        SessionManager.Instance.DrawWorld(_spriteBatch);
         _spriteBatch.End();
 
         _spriteBatch.Begin();
-        CurrentSession.DrawUI(_spriteBatch);
+        SessionManager.Instance.DrawUI(_spriteBatch);
         _spriteBatch.End();
     }
+    #endregion
 
+    #region MG Events
     protected override void OnExiting(object sender, ExitingEventArgs args)
     {
-        CurrentSession.Stop();
+        SessionManager.Instance.ShutdownCurrentSession();
 
         // Extra safety: the server should automatically remove UPnP mappings when it stops
         UpnpHelper.TryRemoveAllGameMappings();
 
         base.OnExiting(sender, args);
     }
-
+    #endregion
 }
