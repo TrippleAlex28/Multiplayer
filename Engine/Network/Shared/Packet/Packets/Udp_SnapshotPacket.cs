@@ -7,7 +7,7 @@ public class Udp_SnapshotPacket : Packet
 {
     public override PacketType Type => PacketType.Udp_Snapshot;
 
-    public int sceneEpoch { get; private set; }
+    public int SceneEpoch { get; private set; }
     public uint Tick { get; private set; }
 
     // for server-side reconciliation
@@ -30,6 +30,7 @@ public class Udp_SnapshotPacket : Packet
     
     public override void SerializePayload(BinaryWriter w)
     {
+        w.Write(SceneEpoch);
         w.Write(Tick);
 
         w.Write(LastProcessedSequencePerClient.Count);
@@ -66,6 +67,7 @@ public class Udp_SnapshotPacket : Packet
     
     public override void DeserializePayload(BinaryReader r)
     {
+        this.SceneEpoch = r.ReadInt32();
         this.Tick = r.ReadUInt32();
 
         int ackCount = r.ReadInt32();
