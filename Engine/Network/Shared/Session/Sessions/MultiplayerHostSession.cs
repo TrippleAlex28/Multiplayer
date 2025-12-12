@@ -106,7 +106,6 @@ public class MultiplayerHostSession : IGameSession
         gs.RegisterExistingWorldObjects();
         
         gs.SceneEpoch++;
-        Console.WriteLine($"MPHOST gsEpoch: {gs.SceneEpoch}");
         // Add a player pawn for all connected clients
         foreach (var kvp in _netServer.Clients)
         {
@@ -163,8 +162,6 @@ public class MultiplayerHostSession : IGameSession
 
     private void SendSnapshot()
     {
-        Console.WriteLine($"MPHost SnapshotEpoch: {gs.SceneEpoch}");
-        
         gs.UpdateDirtyFlags();
 
         // build a snaphsot, for now with all props, even non dirty ones
