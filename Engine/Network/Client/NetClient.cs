@@ -230,7 +230,7 @@ public sealed class NetClient : IDisposable
     private void HandleDisconnectPacket(Tcp_DisconnectPacket packet)
     {
         // Fire and forget
-        _ = DisconnectAsync("Kicked by Server"); 
+        _ = DisconnectAsync(packet.Reason); 
     }
 
     private void HandleSnapshotPacket(Udp_SnapshotPacket packet)
