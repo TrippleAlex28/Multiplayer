@@ -163,6 +163,7 @@ public class MultiplayerHostSession : IGameSession
 
         // build a snaphsot, for now with all props, even non dirty ones
         Udp_SnapshotPacket packet = new(
+            gs.SceneEpoch,
             gs.Tick,
             _lastProcessedActionSeq,
             gs.CurrentScene.WorldRoot
