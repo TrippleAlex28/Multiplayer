@@ -17,6 +17,8 @@ public class MainMenuScene : SceneBase
     2) Create MultiplayerClient Session
     3) Create MultiplayerHost Session";
     
+    private bool transfer = false;
+    
     private NonReplicatedTestObject dummy;
     
     public MainMenuScene() : base("MainMenuScene")
@@ -29,15 +31,30 @@ public class MainMenuScene : SceneBase
     {
         if (Keyboard.GetState().IsKeyDown(Keys.D1))
         {
-            SessionManager.Instance.CurrentSession?.SwitchScene("TestScene");
+            if (!transfer)
+            {
+                transfer = true;
+                SessionManager.Instance.CurrentSession?.SwitchScene("TestScene");
+                transfer = false;
+            }
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D2))
         {
-            await SessionManager.Instance.SwitchToMultiplayerClientAsync("192.168.2.23", "TestScene");
+            if (!transfer)
+            {
+                transfer = true;
+                await SessionManager.Instance.SwitchToMultiplayerClientAsync("145.107.78.48", "TestScene");
+                transfer = false;
+            }
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D3))
         {
-            await SessionManager.Instance.SwitchToMultiplayerHostAsync("TestScene");
+            if (!transfer)
+            {
+                transfer = true;
+                await SessionManager.Instance.SwitchToMultiplayerHostAsync("TestScene");
+                transfer = false;
+            }
         }
         
         base.Update(gameTime);
