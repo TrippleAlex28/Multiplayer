@@ -43,7 +43,7 @@ public class MainMenuScene : SceneBase
             if (!transfer)
             {
                 transfer = true;
-                await SessionManager.Instance.SwitchToMultiplayerClientAsync("145.107.78.48", "TestScene");
+                await SessionManager.Instance.SwitchToMultiplayerClientAsync("192.168.2.23", "TestScene");
                 transfer = false;
             }
         }

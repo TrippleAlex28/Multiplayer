@@ -294,6 +294,7 @@ public class MultiplayerClientSession : IGameSession
             liveNode = (GameObject)NetObjectFactory.Create(snapshotNode.TypeId);
 
             liveNode.NetworkId = snapshotNode.NetworkId;
+            liveNode.OwningClientId = snapshotNode.OwningClientId;
 
             liveParent.AddChild(liveNode);
 

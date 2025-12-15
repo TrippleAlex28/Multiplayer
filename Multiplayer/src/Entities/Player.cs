@@ -7,7 +7,13 @@ namespace Multiplayer;
 
 public class Player : GameObject
 {
-    private static Color[] playerCols = [Color.White, Color.Black, Color.Red, Color.Blue, Color.Green];
+    private static Color[] playerCols = [
+        Color.White, 
+        Color.Black, 
+        Color.Red, 
+        Color.Blue, 
+        Color.Green
+    ];
     
     public override NetObjectTypeIds TypeId => NetObjectTypeIds.Player;
 
@@ -26,7 +32,7 @@ public class Player : GameObject
                 this.GlobalPosition.ToPoint(),
                 new Point(40, 80)
             ),
-            playerCols[this.OwningClientId]
+            playerCols[this.OwningClientId < 0 ? 0 : this.OwningClientId % playerCols.Length]
         );
     }   
 }
